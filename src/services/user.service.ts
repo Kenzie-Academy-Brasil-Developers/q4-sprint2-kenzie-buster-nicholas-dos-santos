@@ -15,8 +15,8 @@ interface ILogin {
 
 class UserService {
   loginUser = async (req: Request): Promise<ILogin> => {
-    const userRepository = AppDataSource.getMongoRepository(User);
-    const user = await userRepository.findOneBy({ email: req.validated.email });
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOneBy({ email: req.body.email });
 
     if (!user) {
       return {
@@ -32,7 +32,7 @@ class UserService {
       };
     }
 
-    const token = sign({ ...user }, String(process.env.SECRET_KEY) {
+    const token = sign({ ...user }, String(process.env.SECRET_KEY), {
       expiresIn: process.env.EXPIRES_IN,
     });
 
@@ -43,7 +43,7 @@ class UserService {
   };
 
   createUser = async ({ validated }: Request) => {
-    const userRepository = AppDataSource.getMongoRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
     validated.password = await hash(validated.password, 10);
 
     const findUser = await userRepository.findOneBy({

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { User } from "../entities/user.entity";
-import { userRepository } from "../repositories";
+import { AppDataSource } from "../data-source";
 
 /*
     Tratamento de exceção como existência de usuário ou produto (Unique)
@@ -16,10 +16,11 @@ const verifyUserExists = async (
   res: Response,
   next: NextFunction
 ) => {
-  const foundUser: User | null = await userRepository.findOne({
+  const userRepository = AppDataSource.getRepository(User);
+  const foundUser: User | null = await userRepository.findOneBy({
     email: req.body.email,
   });
-  if (!foundUser) {
+  if (foundUser) {
     return res
       .status(409)
       .json({ error: `Key(email)=(${req.body.email}) already exists` });
