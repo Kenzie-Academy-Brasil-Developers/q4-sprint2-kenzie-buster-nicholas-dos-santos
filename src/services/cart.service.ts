@@ -21,7 +21,6 @@ class CartService {
     });
 
     const allCart = await cartRepository.find();
-    console.log(allCart);
 
     for (let i = 0; i < allCart.length; i++) {
       if (allCart[i].newUser.id === myUser!.id) {
@@ -41,10 +40,23 @@ class CartService {
           });
 
           await stockRepository.update(myStock!.id, { quantity: newQuantity });
+          // const { newUser, ...myCart } = allCart[i];
+
+          const myCart = {
+            id: allCart[i].id,
+            paid: allCart[i].paid,
+            total: allCart[i].total,
+            dvd: {
+              id: allCart[i].dvd.id,
+              name: allCart[i].dvd.name,
+              duration: allCart[i].dvd.duration,
+            },
+          };
+
+          return { status: 200, message: myCart };
         }
       }
     }
-    return { status: 200, message: "ok" };
   };
 }
 export default new CartService();
