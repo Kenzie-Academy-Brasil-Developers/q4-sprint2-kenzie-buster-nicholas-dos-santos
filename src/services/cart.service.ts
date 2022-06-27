@@ -52,11 +52,11 @@ class CartService {
               duration: allCart[i].dvd.duration,
             },
           };
-
           return { status: 200, message: myCart };
         }
       }
     }
+    return { status: 400, message: "error" };
   };
 }
 export default new CartService();
