@@ -4,6 +4,7 @@ import loginUserSchema from "../schemas/user/loginUser.schema";
 import { createUserSchema } from "../schemas/user/createUser.schema";
 import verifyUserExists from "../middlewares/verifyUserExists.middleware";
 import UserController from "../controllers/user.controller";
+import verifyTokenMiddleware from "../middlewares/verifyToken.middleware";
 const route = Router();
 
 const userRoutes = () => {
@@ -15,6 +16,7 @@ const userRoutes = () => {
   route.post(
     "/register",
     validateSchema(createUserSchema),
+    verifyTokenMiddleware,
     verifyUserExists,
     UserController.createUserController
   );

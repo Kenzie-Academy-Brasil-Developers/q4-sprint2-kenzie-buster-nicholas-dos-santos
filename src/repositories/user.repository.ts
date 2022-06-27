@@ -21,6 +21,8 @@
 //   findOne = async (payload: object) => {
 //     return await this.ormRepo.findOneBy({ ...payload });
 //   };
+
+// Erro poderoso
 // }
 
 // export default new UserRepo();

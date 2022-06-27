@@ -13,23 +13,20 @@ const verifyTokenMiddleware = (
 ) => {
   const token = req.headers.authorization?.split(" ")[1];
 
-  if (!token) {
-    return res.status(403).json({ error: "Missing Authorization Token" });
-  }
+  if (token) {
+    jwt.verify(
+      token as string,
+      String(process.env.SECRET_KEY),
+      (err: any, decoded: any) => {
+        if (err) {
+          return res.status(400).json({ error: "Invalid signature" });
+        }
 
-  jwt.verify(
-    token as string,
-    String(process.env.SECRET_KEY),
-    (err: any, decoded: any) => {
-      if (err) {
-        return res.status(400).json({ error: "Invalid signature" });
+        req.decoded = decoded.email;
       }
-
-      req.decoded = decoded.email;
-
-      return next();
-    }
-  );
+    );
+  }
+  return next();
 };
 
 export default verifyTokenMiddleware;
