@@ -13,7 +13,7 @@ class CartService {
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
-      return { status: 401, message: { error: "missing authorization token" } };
+      return { status: 401, message: { error: "Missing authorization token" } };
     }
 
     const myUser = await userRepository.findOneBy({
@@ -21,49 +21,30 @@ class CartService {
     });
 
     const allCart = await cartRepository.find();
+    console.log(allCart);
 
-    if (myUser) {
-      for (let i = 0; i < allCart.length; i++) {
-        if (allCart[i].newUser.id === myUser.id) {
-          await cartRepository.update(allCart[i].id, { paid: true });
-        }
-      }
-      const cartUpdated = await cartRepository.find();
+    for (let i = 0; i < allCart.length; i++) {
+      if (allCart[i].newUser.id === myUser!.id) {
+        allCart[i].paid = true;
 
-      for (let i = 0; i < cartUpdated.length; i++) {
-        if (cartUpdated[i].newUser.id === myUser.id) {
-          const dvdFound = await dvdRepository.findOneBy({
-            id: cartUpdated[i].dvd.id,
+        await cartRepository.save(allCart[i]);
+
+        const dvdFound = await dvdRepository.findOneBy({
+          id: allCart[i].dvd.id,
+        });
+        if (dvdFound) {
+          const numberOfDvdsBuyed = allCart[i].total / dvdFound.stock.price;
+          const newQuantity = dvdFound.stock.quantity - numberOfDvdsBuyed;
+
+          const myStock = await stockRepository.findOneBy({
+            id: dvdFound.stock.id,
           });
 
-          if (dvdFound) {
-            const numberOfDvdsBuyed =
-              cartUpdated[i].total / dvdFound.stock.price;
-            const newQuantity = dvdFound.stock.quantity - numberOfDvdsBuyed;
-
-            console.log(dvdFound.stock.id);
-
-            dvdFound.stock.quantity = newQuantity;
-            await stockRepository.update(dvdFound.stock.id, {
-              quantity: newQuantity,
-            });
-          }
+          await stockRepository.update(myStock!.id, { quantity: newQuantity });
         }
       }
-      const cartRepo = await cartRepository.find();
-      const updated = [];
-      for (let i = 0; i < cartRepo.length; i++) {
-        if (cartRepo[i].newUser.id === myUser.id) {
-          const dvdFound = await dvdRepository.findOneBy({
-            id: cartUpdated[i].dvd.id,
-          });
-
-          updated.push(cartRepo[i]);
-        }
-      }
-      return { status: 201, message: updated };
     }
-    return { status: 400, message: "error" };
+    return { status: 200, message: "ok" };
   };
 }
 export default new CartService();

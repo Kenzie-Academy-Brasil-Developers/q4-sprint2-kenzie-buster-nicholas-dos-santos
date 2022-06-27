@@ -17,13 +17,16 @@ const verifyUserExists = async (
   next: NextFunction
 ) => {
   const userRepository = AppDataSource.getRepository(User);
-  const foundUser: User | null = await userRepository.findOneBy({
-    email: req.body.email,
+  const email = req.body.email;
+  const foundUser = await userRepository.findOneBy({
+    email: email.toLowerCase(),
   });
+  console.log(req.body.email);
+  console.log(foundUser);
   if (foundUser) {
     return res
       .status(409)
-      .json({ error: `Key(email)=(${req.body.email}) already exists` });
+      .json({ error: `Key(email)=(${email.toLowerCase()}) already exists` });
   }
 
   return next();

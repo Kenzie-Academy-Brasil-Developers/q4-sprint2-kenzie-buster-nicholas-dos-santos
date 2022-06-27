@@ -46,7 +46,6 @@ class UserService {
     const userRepository = AppDataSource.getRepository(User);
     validated.password = await hash(validated.password, 10);
 
-    console.log(validated.decoded);
     const findUser = await userRepository.findOneBy({
       email: decoded,
     });
@@ -57,7 +56,9 @@ class UserService {
     }
     const user = await userRepository.save(validated);
 
-    return { status: 201, message: user };
+    const { password, ...removedPWD } = user;
+
+    return { status: 201, message: removedPWD };
   };
 }
 
